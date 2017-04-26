@@ -10,7 +10,7 @@ app.use(morgan('common'));
 const {BlogPosts} = require('./models');
 
 // we want to create blog posts using BlogPosts.create
-BlogPosts.create('My First Blog Post', 'This is my blog post content', 'Hunter Motte', 'April 24th');
+BlogPosts.create('My First Blog Post', 'This is my blog post content');
 
 //GET request to get our blog posts
 app.get('/blog-posts', (req, res) => {
@@ -18,18 +18,18 @@ app.get('/blog-posts', (req, res) => {
 });
 
 // post request, need to make sure we have data for title, content, and author
-app.post('/blog-posts', jsonParser, (req, res) => {
+app.post('/blog-posts', (req, res) => {
   const requiredFields = ['title', 'content', 'author'];
   for (let i=0; i<requiredFields.length; i++) {
-    const field = requiredFields[i];
-    if (!(field in req.body)) {
-      const message = `Missing \`${field}\` in request body`
-      console.log(message);
-      return res.status(400).send(message)
-    }
-  }
-  const item = BlogPosts.create(req.body.title, req.body.content, req.body.author);
-  res.status(201).json(item);
+   const field = requiredFields[i];
+   if (!(field in req.body)) {
+     const message = `Missing \`${field}\` in request body`
+     console.log(message);
+     return res.status(400).send(message)
+   }
+ }
+ const item = BlogPosts.create(req.body.title, req.body.content, req.body.author);
+ res.status(201).json(item);
 });
 
 app.put('/blog-posts/:id', jsonParser, (req,res) => {
