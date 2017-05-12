@@ -2,17 +2,33 @@ const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
+const mongoose = require('mongoose');
+
+mongoose.Promise = global.Promise;
 
 const {BlogPosts} = require('./models');
 
-BlogPosts.create('My First Blog Post', 'This is my blog post content', 'Hunter Motte');
+new BlogPosts = ('My First Blog Post', 'This is my blog post content', 'Hunter Motte');
 
 router.get('/', (req, res) => {
-  res.json(BlogPosts.get());
+  BlogPosts.find({}, (err, blogs) => {
+    if(err) {
+      res.send(err)
+    }
+    res.json(blogs)
+  });
 });
 
-// post request, need to make sure we have data for title, content, and author
-router.post('/', jsonParser, (req, res) => {
+router.get('/:id', (req, res) => {
+  BlogPosts.findById({req.params.id}, (err, blogs) => {
+    if(err) {
+      res.send(err)
+    }
+    res.json(blogs)
+  });
+});
+
+router.post('/', (req, res) => {
   const requiredFields = ['title', 'content', 'author'];
   for (let i=0; i<requiredFields.length; i++) {
    const field = requiredFields[i];
@@ -22,8 +38,19 @@ router.post('/', jsonParser, (req, res) => {
      return res.status(400).send(message)
    }
  }
- const item = BlogPosts.create(req.body.title, req.body.content, req.body.author);
- res.status(201).json(item);
+  const newBlogPost = new BlogPosts()
+
+  newBlogPost.title = req.body.title
+  newBlogPost.content = req.body.content
+  newBlogPost.author = req.body.author
+
+  newBlogPost.save(err, record) => {
+    if(err) {
+      res.send(err)
+    }
+
+    res.json(record)
+  });
 });
 
 router.put('/:id', jsonParser, (req,res) => {
@@ -43,21 +70,24 @@ router.put('/:id', jsonParser, (req,res) => {
       return res.status(400).send(message);
   }
   console.log(`Updating blog post \`${req.params.id}\``);
-  const updatedItem = BlogPosts.update({
-    id: req.params.id,
-    title: req.body.title,
-    content: req.body.content,
-    author: req.body.author,
-    publishDate: req.body.publishDate
+
+  const updateObject = {};
+  const updateableFields = ['title', 'content', 'author', 'publishDate'];
+
+  updateableFields.forEach(field => {
+    if (field in req.body) {
+      updateObject[field] = req.body[field];
+    }
   });
-  res.status(204).json(updatedItem);
+
+  BlogPosts.findByIdAndUpdate(req.params.id, {$set: updateObject})
+  .then(blogs => res.status(204).end())
 });
 
 // delete request by id
 router.delete('/:id', (req, res) => {
-  BlogPosts.delete(req.params.id);
-  console.log(`Deleted blog post with id \`${req.params.id}\``);
-  res.status(204).end();
+  BlogPosts.findByIdAndRemove(req.params.id);
+  .then(() => res.status(204).end());
 });
 
 module.exports = router;
