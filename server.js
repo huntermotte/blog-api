@@ -1,7 +1,9 @@
 const express = require('express');
 const morgan = require('morgan');
-const app = express();
+const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+
+const app = express();
 
 mongoose.Promise = global.Promise;
 
@@ -12,6 +14,7 @@ const blogPostsRouter = require('./blogPostsRouter');
 
 app.use(morgan('common'));
 app.use(express.static('public'));
+app.use(bodyParser.json());
 
 const {BlogPosts} = require('./models');
 
@@ -21,10 +24,7 @@ let server;
 
 function runServer(databaseUrl=DATABASE_URL, port=PORT) {
   return new Promise((resolve, reject) => {
-    mongoose.connect(databaseUrl, err) => {
-      if(err) {
-        return reject(err);
-      }
+    mongoose.connect(databaseUrl)
 
       server = app.listen(port, () => {
         console.log(`Your app is listening on port ${port}`);
@@ -35,8 +35,7 @@ function runServer(databaseUrl=DATABASE_URL, port=PORT) {
         reject(err);
       });
     });
-  });
-}
+  };
 
 function closeServer() {
   return mongoose.disconnect().then(() => {

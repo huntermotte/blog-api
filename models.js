@@ -7,8 +7,8 @@ const blogPostSchema = mongoose.Schema({
     firstName: String,
     lastName: String
   },
-  publishDate: new Date()
+  publishDate: Date
 });
 
 
-module.exports = mongoose.model('BlogPosts', blogPostSchema);
+module.exports = mongoose.model('BlogPost', blogPostSchema);

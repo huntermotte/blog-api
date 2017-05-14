@@ -1,17 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
-const jsonParser = bodyParser.json();
 const mongoose = require('mongoose');
 
 mongoose.Promise = global.Promise;
 
-const {BlogPosts} = require('./models');
-
-new BlogPosts = ('My First Blog Post', 'This is my blog post content', 'Hunter Motte');
+const BlogPost = require('./models');
 
 router.get('/', (req, res) => {
-  BlogPosts.find({}, (err, blogs) => {
+  BlogPost.find((err, blogs) => {
     if(err) {
       res.send(err)
     }
@@ -20,7 +17,7 @@ router.get('/', (req, res) => {
 });
 
 router.get('/:id', (req, res) => {
-  BlogPosts.findById({req.params.id}, (err, blogs) => {
+  BlogPost.findById(req.params.id, (err, blogs) => {
     if(err) {
       res.send(err)
     }
@@ -29,6 +26,7 @@ router.get('/:id', (req, res) => {
 });
 
 router.post('/', (req, res) => {
+  console.log(req.body)
   const requiredFields = ['title', 'content', 'author'];
   for (let i=0; i<requiredFields.length; i++) {
    const field = requiredFields[i];
@@ -38,13 +36,13 @@ router.post('/', (req, res) => {
      return res.status(400).send(message)
    }
  }
-  const newBlogPost = new BlogPosts()
+  const newBlogPost = new BlogPost()
 
   newBlogPost.title = req.body.title
   newBlogPost.content = req.body.content
   newBlogPost.author = req.body.author
 
-  newBlogPost.save(err, record) => {
+  newBlogPost.save((err, record) => {
     if(err) {
       res.send(err)
     }
@@ -53,7 +51,7 @@ router.post('/', (req, res) => {
   });
 });
 
-router.put('/:id', jsonParser, (req,res) => {
+router.put('/:id', (req,res) => {
   const requiredFields = ['title', 'content', 'author', 'publishDate'];
   for (let i=0; i<requiredFields.length; i++) {
     const field = requiredFields[i];
@@ -62,12 +60,6 @@ router.put('/:id', jsonParser, (req,res) => {
       console.log(message);
       return res.status(400).send(message);
     }
-  }
-  if (req.params.id !== req.body.id) {
-    const message = (
-      `Request path id (${req.params.id}) and request body id (${req.body.id}) must match`);
-      console.log(message);
-      return res.status(400).send(message);
   }
   console.log(`Updating blog post \`${req.params.id}\``);
 
@@ -80,13 +72,13 @@ router.put('/:id', jsonParser, (req,res) => {
     }
   });
 
-  BlogPosts.findByIdAndUpdate(req.params.id, {$set: updateObject})
-  .then(blogs => res.status(204).end())
+  BlogPost.findByIdAndUpdate(req.params.id, {$set: updateObject})
+.then(blogs => res.status(201).json({"message": "Successfully updated blog post"}));
 });
 
 // delete request by id
 router.delete('/:id', (req, res) => {
-  BlogPosts.findByIdAndRemove(req.params.id);
+  BlogPost.findByIdAndRemove(req.params.id)
   .then(() => res.status(204).end());
 });
 
