@@ -5,6 +5,10 @@ const mongoose = require('mongoose');
 
 const app = express();
 
+app.get('/', (req, res) => {
+  res.send('Welcome');
+})
+
 mongoose.Promise = global.Promise;
 
 const {DATABASE_URL, PORT} = require('./config');
