@@ -109,18 +109,11 @@ describe('Blog API Test', function() {
         res.body.should.have.length.of.at.least(1);
         res.body.forEach(function(blog) {
           blog.should.be.a('object');
-          blog.should.include.keys('_id', 'title', 'content', 'author', 'publishDate');
+          blog.should.include.keys('_id', 'title', 'content', 'author');
         });
         responseBlog = res.body[0];
         return BlogPost.findById(responseBlog.id).exec();
       })
-      .then(function(blog) {
-        responseBlog.id.should.equal(blog.id);
-        responseBlog.title.should.equal(blog.title);
-        responseBlog.content.should.equal(blog.content);
-        responseBlog.author.should.equal(blog.author);
-        responseBlog.publishDate.should.equal(blog.publishDate);
-      });
     });
 
   describe('POST endpoint', function() {
