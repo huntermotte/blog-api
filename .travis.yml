@@ -2,4 +2,4 @@ language: node_js
 node_js: node
 services:
 - mongodb
-deploy:app: https://stormy-journey-69923.herokuapp.com
+deploy:app: https://powerful-tor-71426.herokuapp.com
